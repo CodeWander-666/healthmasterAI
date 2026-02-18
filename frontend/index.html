@@ -2,59 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HealthMaster AI | Clinical Risk Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-slate-900 text-white font-sans">
-    <div class="max-w-4xl mx-auto py-20 px-6">
-        <header class="mb-12">
-            <h1 class="text-4xl font-bold text-emerald-400">HealthMaster AI</h1>
-            <p class="text-slate-400">Enterprise-grade predictive analytics for healthcare.</p>
-        </header>
+<body class="bg-[#0f172a] text-white font-sans min-h-screen">
+    <div class="container mx-auto px-6 py-12">
+        <nav class="flex justify-between items-center mb-16">
+            <h1 class="text-2xl font-bold tracking-tighter text-cyan-400">HEALTH<span class="text-white">MASTER AI</span></h1>
+            <span class="bg-cyan-500/10 text-cyan-400 text-xs px-3 py-1 rounded-full border border-cyan-500/20">LIVE ENGINE v1.0</span>
+        </nav>
 
-        <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700">
-            <div class="grid grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm mb-2 text-slate-400">Glucose (mg/dL)</label>
-                    <input id="glucose" type="number" class="w-full bg-slate-900 border border-slate-600 p-3 rounded-lg focus:outline-none focus:border-emerald-500">
+        <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-5xl font-extrabold leading-tight mb-6">Real-time <span class="text-cyan-400">Disease Detection</span> for modern clinics.</h2>
+                <p class="text-slate-400 text-lg mb-8">Deploying proven machine learning models to identify patient risks before they become emergencies.</p>
+                <ul class="space-y-4 text-slate-300">
+                    <li><i class="fa-solid fa-check text-cyan-400 mr-2"></i> Industry-Grade Normalization</li>
+                    <li><i class="fa-solid fa-check text-cyan-400 mr-2"></i> HIPAA-Ready Architecture</li>
+                </ul>
+            </div>
+
+            <div class="bg-slate-800/50 p-8 rounded-3xl border border-slate-700 backdrop-blur-xl shadow-2xl">
+                <div class="space-y-5">
+                    <input id="glucose" type="number" placeholder="Glucose (mg/dL)" class="w-full bg-slate-900/50 border border-slate-600 p-4 rounded-xl focus:border-cyan-500 outline-none transition-all">
+                    <input id="bmi" type="number" placeholder="BMI Index" class="w-full bg-slate-900/50 border border-slate-600 p-4 rounded-xl focus:border-cyan-500 outline-none transition-all">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input id="age" type="number" placeholder="Age" class="bg-slate-900/50 border border-slate-600 p-4 rounded-xl outline-none">
+                        <input id="bp" type="number" placeholder="BP (mm Hg)" class="bg-slate-900/50 border border-slate-600 p-4 rounded-xl outline-none">
+                    </div>
+                    <button onclick="analyzeData()" id="btn" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-4 rounded-xl transition-all shadow-lg shadow-cyan-500/20">
+                        RUN CLINICAL ANALYSIS
+                    </button>
                 </div>
-                <div>
-                    <label class="block text-sm mb-2 text-slate-400">BMI Index</label>
-                    <input id="bmi" type="number" step="0.1" class="w-full bg-slate-900 border border-slate-600 p-3 rounded-lg focus:outline-none focus:border-emerald-500">
+
+                <div id="result-box" class="hidden mt-8 pt-8 border-t border-slate-700 text-center animate-fade-in">
+                    <div class="text-sm text-slate-400 uppercase tracking-widest mb-1">Risk Probability</div>
+                    <div id="risk-score" class="text-6xl font-black text-cyan-400">0%</div>
+                    <div id="triage" class="mt-4 text-lg font-medium py-2 px-4 rounded-lg inline-block">--</div>
                 </div>
             </div>
-            <button onclick="analyze()" class="mt-8 w-full bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold py-4 rounded-xl transition-all">
-                RUN CLINICAL ANALYSIS
-            </button>
-        </div>
-
-        <div id="results" class="hidden mt-10 p-8 bg-emerald-900/20 border border-emerald-500/30 rounded-2xl">
-            <h2 class="text-2xl font-bold text-emerald-400" id="risk-val">Risk: --</h2>
-            <p id="triage-text" class="text-slate-300 mt-2"></p>
         </div>
     </div>
-
-    <script>
-        async function analyze() {
-            const data = {
-                glucose: document.getElementById('glucose').value,
-                bmi: document.getElementById('bmi').value,
-                age: 30, // Default for demo
-                bp: 80   // Default for demo
-            };
-
-            // YOUR RENDER API URL GOES HERE
-            const response = await fetch('https://your-api-url.onrender.com/predict', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            });
-            const result = await response.json();
-            
-            document.getElementById('results').classList.remove('hidden');
-            document.getElementById('risk-val').innerText = `Risk Level: ${result.risk_score}`;
-            document.getElementById('triage-text').innerText = `Triage Recommendation: ${result.triage}`;
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
