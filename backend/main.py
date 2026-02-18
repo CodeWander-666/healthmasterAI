@@ -5,56 +5,67 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Allow frontend requests
+CORS(app)
 
-# Load the pre-trained pipeline (model + scaler)
+# Load the pre-trained pipeline
 MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'models', 'diabetes_model.pkl')
 with open(MODEL_PATH, 'rb') as f:
     pipeline = pickle.load(f)
 
-# Feature names in the exact order expected by the model
+# Feature names in the exact order expected by the model (as in CSV)
 FEATURE_NAMES = [
     'Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness',
     'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age'
 ]
 
+# Map frontend keys (lowercase, with "dpf" shorthand) to feature names
+KEY_MAPPING = {
+    'pregnancies': 'Pregnancies',
+    'glucose': 'Glucose',
+    'bloodpressure': 'BloodPressure',
+    'skinthickness': 'SkinThickness',
+    'insulin': 'Insulin',
+    'bmi': 'BMI',
+    'dpf': 'DiabetesPedigreeFunction',
+    'age': 'Age'
+}
+
 @app.route('/predict', methods=['POST'])
 def predict():
-    """
-    Expects JSON with keys matching FEATURE_NAMES (lowercase).
-    Returns prediction, probability, and feature importance.
-    """
     try:
         data = request.get_json()
         if not data:
             return jsonify({'error': 'No input data provided'}), 400
 
-        # Build feature vector in the correct order
+        # Build feature vector in the correct order using the mapping
         features = []
-        for name in FEATURE_NAMES:
-            key = name.lower()  # JSON keys are lowercase in frontend
-            if key not in data:
-                return jsonify({'error': f'Missing field: {key}'}), 400
+        for feature in FEATURE_NAMES:
+            # Find the frontend key that corresponds to this feature
+            frontend_key = None
+            for k, v in KEY_MAPPING.items():
+                if v == feature:
+                    frontend_key = k
+                    break
+            if frontend_key is None:
+                return jsonify({'error': f'No mapping for feature {feature}'}), 500
+
+            if frontend_key not in data:
+                return jsonify({'error': f'Missing field: {frontend_key}'}), 400
             try:
-                value = float(data[key])
+                value = float(data[frontend_key])
             except ValueError:
-                return jsonify({'error': f'Invalid numeric value for {key}'}), 400
+                return jsonify({'error': f'Invalid numeric value for {frontend_key}'}), 400
             features.append(value)
 
-        # Convert to numpy array and reshape for single sample
         X = np.array(features).reshape(1, -1)
 
-        # Predict
         prediction = int(pipeline.predict(X)[0])
-        probability = pipeline.predict_proba(X)[0][1]  # probability of class 1
+        probability = pipeline.predict_proba(X)[0][1]
 
         # Feature importance: coefficients from logistic regression
-        # Access the logistic regression step inside the pipeline
-        # Pipeline steps: [('standardscaler', ...), ('logisticregression', ...)]
         lr_model = pipeline.named_steps['logisticregression']
-        coef = lr_model.coef_[0]  # shape (n_features,)
+        coef = lr_model.coef_[0]
 
-        # Prepare response
         response = {
             'prediction': prediction,
             'probability': probability,
