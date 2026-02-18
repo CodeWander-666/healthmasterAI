@@ -1,7 +1,5 @@
-streamlit
+fastapi
+uvicorn
 joblib
 scikit-learn
-pandas
 numpy
-shap
-matplotlib
