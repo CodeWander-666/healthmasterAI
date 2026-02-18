@@ -3,133 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diabetes Risk Predictor | HealthMaster AI</title>
+    <title>HealthMaster AI · Diabetes Risk Predictor</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-            background: #f5f7fa;
-            color: #2c3e50;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(145deg, #f6f9fc 0%, #edf2f7 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            padding: 2rem;
         }
         h1 {
-            text-align: center;
-            color: #2c3e50;
+            font-size: 2.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: #4a5568;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #4299e1;
+            padding-left: 1rem;
+        }
+        .status-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background: #edf2f7;
+            padding: 0.75rem 1.25rem;
+            border-radius: 100px;
+            font-size: 0.95rem;
+        }
+        .status-led {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #cbd5e0;
+            transition: background 0.3s;
+        }
+        .status-led.online {
+            background: #48bb78;
+            box-shadow: 0 0 12px #48bb78;
+        }
+        .status-led.offline {
+            background: #f56565;
+            box-shadow: 0 0 12px #f56565;
+        }
+        .status-led.checking {
+            background: #ecc94b;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .check-connection-btn {
+            background: none;
+            border: 1px solid #cbd5e0;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .check-connection-btn:hover {
+            background: #e2e8f0;
         }
         form {
             background: white;
+            border-radius: 1.5rem;
             padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
         }
         .form-group {
-            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
         }
         label {
-            display: block;
-            margin-bottom: 0.5rem;
             font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+            font-size: 0.95rem;
         }
         input {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #bdc3c7;
-            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
             font-size: 1rem;
+            transition: border 0.2s, box-shadow 0.2s;
         }
-        button {
-            background: #3498db;
+        input:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66,153,225,0.2);
+        }
+        input.invalid {
+            border-color: #f56565;
+            background: #fff5f5;
+        }
+        .error-message {
+            color: #f56565;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            min-height: 1.2rem;
+        }
+        button[type="submit"] {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
             border: none;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            border-radius: 6px;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 40px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: transform 0.1s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 1rem;
         }
-        button:hover {
-            background: #2980b9;
+        button[type="submit"]:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+        }
+        button[type="submit"]:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #a0aec0;
         }
         #result {
-            margin-top: 2rem;
-            padding: 1rem;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
             display: none;
         }
-        #prediction {
-            font-size: 1.2rem;
-            font-weight: bold;
+        .risk-badge {
+            font-size: 1.8rem;
+            font-weight: 700;
             text-align: center;
-            padding: 1rem;
-            border-radius: 8px;
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            margin-bottom: 2rem;
         }
         .low-risk {
-            background: #d4edda;
-            color: #155724;
+            background: #c6f6d5;
+            color: #22543d;
         }
         .high-risk {
-            background: #f8d7da;
-            color: #721c24;
+            background: #fed7d7;
+            color: #742a2a;
         }
-        #importance-chart {
+        .chart-container {
             margin-top: 2rem;
             height: 300px;
         }
-        .error {
-            background: #f8d7da;
-            color: #721c24;
+        .error-box {
+            background: #fed7d7;
+            color: #742a2a;
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .diagnostic-panel {
+            background: #f7fafc;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            border: 1px solid #e2e8f0;
+        }
+        .diagnostic-panel summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .diagnostic-panel pre {
+            background: #1a202c;
+            color: #cbd5e0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
             margin-top: 1rem;
         }
+        footer {
+            margin-top: 2rem;
+            color: #718096;
+            font-size: 0.9rem;
+        }
     </style>
+    <!-- Load Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
-    <h1>🩺 Diabetes Risk Assessment</h1>
-    <p>Enter patient medical data to predict diabetes risk and see key contributing factors.</p>
+    <div class="container">
+        <h1>🩺 HealthMaster AI</h1>
+        <div class="subtitle">Diabetes Risk Predictor · Clinical Decision Support</div>
 
-    <form id="prediction-form">
-        <div class="form-group">
-            <label for="pregnancies">Pregnancies</label>
-            <input type="number" id="pregnancies" name="pregnancies" step="1" min="0" required>
+        <!-- Connection status bar -->
+        <div class="status-bar">
+            <span class="status-led" id="status-led"></span>
+            <span id="status-text">Checking backend connection...</span>
+            <button class="check-connection-btn" id="check-connection">Test Now</button>
         </div>
-        <div class="form-group">
-            <label for="glucose">Glucose (mg/dL)</label>
-            <input type="number" id="glucose" name="glucose" step="1" min="0" required>
-        </div>
-        <div class="form-group">
-            <label for="bloodpressure">Blood Pressure (mm Hg)</label>
-            <input type="number" id="bloodpressure" name="bloodpressure" step="1" min="0" required>
-        </div>
-        <div class="form-group">
-            <label for="skinthickness">Skin Thickness (mm)</label>
-            <input type="number" id="skinthickness" name="skinthickness" step="1" min="0" required>
-        </div>
-        <div class="form-group">
-            <label for="insulin">Insulin (μU/mL)</label>
-            <input type="number" id="insulin" name="insulin" step="1" min="0" required>
-        </div>
-        <div class="form-group">
-            <label for="bmi">BMI</label>
-            <input type="number" id="bmi" name="bmi" step="0.1" min="0" required>
-        </div>
-        <div class="form-group">
-            <label for="dpf">Diabetes Pedigree Function</label>
-            <input type="number" id="dpf" name="dpf" step="0.01" min="0" required>
-        </div>
-        <div class="form-group">
-            <label for="age">Age (years)</label>
-            <input type="number" id="age" name="age" step="1" min="0" required>
-        </div>
-        <button type="submit">Predict Risk</button>
-    </form>
 
-    <div id="result"></div>
+        <!-- Patient form -->
+        <form id="prediction-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="pregnancies">Pregnancies</label>
+                    <input type="number" id="pregnancies" name="pregnancies" step="1" min="0" required>
+                    <div class="error-message" id="error-pregnancies"></div>
+                </div>
+                <div class="form-group">
+                    <label for="glucose">Glucose (mg/dL)</label>
+                    <input type="number" id="glucose" name="glucose" step="1" min="0" required>
+                    <div class="error-message" id="error-glucose"></div>
+                </div>
+                <div class="form-group">
+                    <label for="bloodpressure">Blood Pressure (mm Hg)</label>
+                    <input type="number" id="bloodpressure" name="bloodpressure" step="1" min="0" required>
+                    <div class="error-message" id="error-bloodpressure"></div>
+                </div>
+                <div class="form-group">
+                    <label for="skinthickness">Skin Thickness (mm)</label>
+                    <input type="number" id="skinthickness" name="skinthickness" step="1" min="0" required>
+                    <div class="error-message" id="error-skinthickness"></div>
+                </div>
+                <div class="form-group">
+                    <label for="insulin">Insulin (μU/mL)</label>
+                    <input type="number" id="insulin" name="insulin" step="1" min="0" required>
+                    <div class="error-message" id="error-insulin"></div>
+                </div>
+                <div class="form-group">
+                    <label for="bmi">BMI</label>
+                    <input type="number" id="bmi" name="bmi" step="0.1" min="0" required>
+                    <div class="error-message" id="error-bmi"></div>
+                </div>
+                <div class="form-group">
+                    <label for="dpf">Diabetes Pedigree Function</label>
+                    <input type="number" id="dpf" name="dpf" step="0.01" min="0" required>
+                    <div class="error-message" id="error-dpf"></div>
+                </div>
+                <div class="form-group">
+                    <label for="age">Age (years)</label>
+                    <input type="number" id="age" name="age" step="1" min="0" required>
+                    <div class="error-message" id="error-age"></div>
+                </div>
+            </div>
+            <button type="submit" id="submit-btn" disabled>Analyze Risk</button>
+        </form>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <!-- Results panel -->
+        <div id="result"></div>
+
+        <!-- Diagnostic panel (collapsible) -->
+        <details class="diagnostic-panel">
+            <summary>🔧 Self‑Diagnosis & System Info</summary>
+            <pre id="diagnostic-output">Loading diagnostic info...</pre>
+        </details>
+
+        <footer>© HealthMaster AI · v2.0 · Clinical decision support tool (not a substitute for professional medical advice)</footer>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
