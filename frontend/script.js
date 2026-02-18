@@ -1,5 +1,5 @@
 // ================= CONFIGURATION =================
-// ✅ YOUR CORRECT RAW GITHUB CSV URL
+// ✅ Your exact raw GitHub CSV URL
 const CSV_URL = 'https://raw.githubusercontent.com/CodeWander-666/healthmasterAI/main/backend/Diabetes_prediction.csv';
 
 // ================= GLOBAL VARIABLES =================
@@ -40,8 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDiagnosticInfo();
     loadCSV();
     checkConnBtn.addEventListener('click', () => {
-        // Manual reload of CSV
-        loadCSV();
+        loadCSV(); // Manual reload
     });
 });
 
