@@ -3,48 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthMaster AI | Clinical Risk Engine</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Diabetes Risk Predictor | HealthMaster AI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        #result {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+        }
+        #prediction {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .low-risk {
+            background: #d4edda;
+            color: #155724;
+        }
+        .high-risk {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        #importance-chart {
+            margin-top: 2rem;
+            height: 300px;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+    </style>
 </head>
-<body class="bg-[#0f172a] text-white font-sans min-h-screen">
-    <div class="container mx-auto px-6 py-12">
-        <nav class="flex justify-between items-center mb-16">
-            <h1 class="text-2xl font-bold tracking-tighter text-cyan-400">HEALTH<span class="text-white">MASTER AI</span></h1>
-            <span class="bg-cyan-500/10 text-cyan-400 text-xs px-3 py-1 rounded-full border border-cyan-500/20">LIVE ENGINE v1.0</span>
-        </nav>
+<body>
+    <h1>🩺 Diabetes Risk Assessment</h1>
+    <p>Enter patient medical data to predict diabetes risk and see key contributing factors.</p>
 
-        <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-            <div>
-                <h2 class="text-5xl font-extrabold leading-tight mb-6">Real-time <span class="text-cyan-400">Disease Detection</span> for modern clinics.</h2>
-                <p class="text-slate-400 text-lg mb-8">Deploying proven machine learning models to identify patient risks before they become emergencies.</p>
-                <ul class="space-y-4 text-slate-300">
-                    <li><i class="fa-solid fa-check text-cyan-400 mr-2"></i> Industry-Grade Normalization</li>
-                    <li><i class="fa-solid fa-check text-cyan-400 mr-2"></i> HIPAA-Ready Architecture</li>
-                </ul>
-            </div>
-
-            <div class="bg-slate-800/50 p-8 rounded-3xl border border-slate-700 backdrop-blur-xl shadow-2xl">
-                <div class="space-y-5">
-                    <input id="glucose" type="number" placeholder="Glucose (mg/dL)" class="w-full bg-slate-900/50 border border-slate-600 p-4 rounded-xl focus:border-cyan-500 outline-none transition-all">
-                    <input id="bmi" type="number" placeholder="BMI Index" class="w-full bg-slate-900/50 border border-slate-600 p-4 rounded-xl focus:border-cyan-500 outline-none transition-all">
-                    <div class="grid grid-cols-2 gap-4">
-                        <input id="age" type="number" placeholder="Age" class="bg-slate-900/50 border border-slate-600 p-4 rounded-xl outline-none">
-                        <input id="bp" type="number" placeholder="BP (mm Hg)" class="bg-slate-900/50 border border-slate-600 p-4 rounded-xl outline-none">
-                    </div>
-                    <button onclick="analyzeData()" id="btn" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-4 rounded-xl transition-all shadow-lg shadow-cyan-500/20">
-                        RUN CLINICAL ANALYSIS
-                    </button>
-                </div>
-
-                <div id="result-box" class="hidden mt-8 pt-8 border-t border-slate-700 text-center animate-fade-in">
-                    <div class="text-sm text-slate-400 uppercase tracking-widest mb-1">Risk Probability</div>
-                    <div id="risk-score" class="text-6xl font-black text-cyan-400">0%</div>
-                    <div id="triage" class="mt-4 text-lg font-medium py-2 px-4 rounded-lg inline-block">--</div>
-                </div>
-            </div>
+    <form id="prediction-form">
+        <div class="form-group">
+            <label for="pregnancies">Pregnancies</label>
+            <input type="number" id="pregnancies" name="pregnancies" step="1" min="0" required>
         </div>
-    </div>
+        <div class="form-group">
+            <label for="glucose">Glucose (mg/dL)</label>
+            <input type="number" id="glucose" name="glucose" step="1" min="0" required>
+        </div>
+        <div class="form-group">
+            <label for="bloodpressure">Blood Pressure (mm Hg)</label>
+            <input type="number" id="bloodpressure" name="bloodpressure" step="1" min="0" required>
+        </div>
+        <div class="form-group">
+            <label for="skinthickness">Skin Thickness (mm)</label>
+            <input type="number" id="skinthickness" name="skinthickness" step="1" min="0" required>
+        </div>
+        <div class="form-group">
+            <label for="insulin">Insulin (μU/mL)</label>
+            <input type="number" id="insulin" name="insulin" step="1" min="0" required>
+        </div>
+        <div class="form-group">
+            <label for="bmi">BMI</label>
+            <input type="number" id="bmi" name="bmi" step="0.1" min="0" required>
+        </div>
+        <div class="form-group">
+            <label for="dpf">Diabetes Pedigree Function</label>
+            <input type="number" id="dpf" name="dpf" step="0.01" min="0" required>
+        </div>
+        <div class="form-group">
+            <label for="age">Age (years)</label>
+            <input type="number" id="age" name="age" step="1" min="0" required>
+        </div>
+        <button type="submit">Predict Risk</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
